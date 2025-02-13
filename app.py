@@ -21,6 +21,33 @@ def fetch_nfl_players():
     
     return players
 
+def fetch_player_weekly_stats(player_id, season):
+    url = f"https://api.sleeper.com/projections/nfl/player/{player_id}?season_type=regular&season={season}&grouping=week"
+    # url = f"https://api.sleeper.com/stats/nfl/player/{player_id}?season_type=regular&season={season}"
+    response = requests.get(url)
+    data = response.json()
+    
+    return data
+
+def fetch_player_season_stats(player_id, season):
+    url = f"https://api.sleeper.com/stats/nfl/player/{player_id}?season_type=regular&season={season}"
+    response = requests.get(url)
+    data = response.json()
+    
+    return data
+
+# Function to fetch and process player stats into a DataFrame
+def fetch_and_process_player_stats(player_id, season):
+    url = f"https://api.sleeper.com/stats/nfl/player/{player_id}?season_type=regular&season={season}"
+    response = requests.get(url)
+    data = response.json()
+    
+    # Extract stats information
+    stats = data.get('stats', {})
+    stats_df = pd.DataFrame([stats])
+    
+    return stats_df
+
 # Load team names from local file
 def load_team_names():
     local_file = "localData/team_names.json"
@@ -55,7 +82,9 @@ def display_players(players):
     # Sort players by search_rank
     players = sorted(players, key=lambda player: player.get('search_rank', float('inf')) if player.get('search_rank') is not None else float('inf'))
     df = pd.DataFrame(players)
-    st.dataframe(df, column_order=["full_name", "position", "team", "search_rank"])
+    st.dataframe(df.head(6), column_order=["full_name", "position", "team"
+                                   , "yahoo_id", "rotoworld_id", "espn_id", "swish_id", "player_id", "fantasy_data_id", "sportsradar_id"
+                                   , "search_rank"],hide_index=True)
 
 # Function to save drafted players to a local file
 def save_drafted_players(drafted_players, team_name):
@@ -85,6 +114,46 @@ def calculate_remaining_budget(initial_budget=200):
     
     return team_budgets
 
+# Function to aggregate total spend and count of players per position by team name
+def aggregate_draft_data():
+    if os.path.exists("localData/drafted_players.json"):
+        with open("localData/drafted_players.json", "r") as f:
+            drafted_players = [json.loads(line) for line in f]
+        
+        team_data = {}
+        for player in drafted_players:
+            team_name = player['team_name']
+            if team_name not in team_data:
+                team_data[team_name] = {
+                    "Total Spend": 0,
+                    "Player Count": 0,
+                    "Positions": {}
+                }
+            team_data[team_name]["Total Spend"] += player['draft_amount']
+            team_data[team_name]["Player Count"] += 1
+            position = player['position']
+            if position in team_data[team_name]["Positions"]:
+                team_data[team_name]["Positions"][position] += 1
+            else:
+                team_data[team_name]["Positions"][position] = 1
+        
+        aggregated_data = []
+        for team_name, data in team_data.items():
+            row = {
+                "Team Name": team_name,
+                "Remaining $$$": 200-data["Total Spend"],
+                "Total Spend": data["Total Spend"],
+                "Player Count": data["Player Count"]
+            }
+            row.update(data["Positions"])
+            aggregated_data.append(row)
+        
+        aggregated_df = pd.DataFrame(aggregated_data)
+        return aggregated_df
+    else:
+        st.error("The file 'drafted_players.json' does not exist.")
+        return pd.DataFrame(columns=["Team Name", "Total Spend", "Player Count"])
+
 # Streamlit app layout
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Home", "Draft Day App", "Yahoo Players"])
@@ -105,14 +174,22 @@ if page == "Home":
     display_players(players)
     
     # Display remaining budget for each team
-    st.subheader("Remaining Budget for Each Team")
-    team_budgets = calculate_remaining_budget()
-    budget_df = pd.DataFrame(list(team_budgets.items()), columns=["Team Name", "Remaining Budget"]).transpose()
-    st.dataframe(budget_df,resizable=True)
+    st.subheader("Team Budget and Positions")
+    # team_budgets = calculate_remaining_budget()
+    # budget_df = pd.DataFrame(list(team_budgets.items()), columns=["Team Name", "Remaining Budget"]).transpose()
+    # st.dataframe(budget_df)
+
+    st.dataframe(aggregate_draft_data(),hide_index=True)
 
     # Function to handle drafting a player
     def draft_player(player):
         st.write(f"Drafting player: {player['full_name']}")
+        st.image(f"https://sleepercdn.com/content/nfl/players/{player['player_id']}.jpg")
+        
+        # Fetch and display player stats
+        stats_df = fetch_and_process_player_stats(player['player_id'], "2024")
+        st.dataframe(stats_df)
+        
         nominated_by = st.selectbox("Nominated by:", team_names['team_name'])
         nomination_amount = st.number_input("Nomination amount:", min_value=1, step=1)
         draft_amount = st.number_input("Winning draft amount:", min_value=1, step=1)
@@ -129,6 +206,7 @@ if page == "Home":
             }
             save_drafted_players([drafted_player], team_name)
             st.success(f"{player['full_name']} drafted by {team_name} for ${draft_amount}")
+            #st.experimental_rerun()  # Refresh the data
 
     # Select a player from the dataframe
     players = filter_players(players)
