@@ -6,7 +6,7 @@ import os
 
 # Function to fetch NFL player data from Sleeper API
 def fetch_nfl_players():
-    local_file = "nfl_players.json"
+    local_file = "localData/nfl_players.json"
     
     if os.path.exists(local_file):
         with open(local_file, "r") as f:
@@ -23,7 +23,7 @@ def fetch_nfl_players():
 
 # Load team names from local file
 def load_team_names():
-    local_file = "team_names.json"
+    local_file = "localData/team_names.json"
     
     if os.path.exists(local_file):
         with open(local_file, "r") as f:
@@ -37,25 +37,25 @@ def load_team_names():
 
 # Function to display player data in a table
 def display_players(players):
-    players = sorted(players, key=lambda player: player.get('search_rank', float('inf')) if player.get('search_rank') is not None else float('inf'))
-    df = pd.DataFrame(players)
     # Load drafted players from local file
     drafted_players = []
-    if os.path.exists("drafted_players.json"):
-        with open("drafted_players.json", "r") as f:
+    if os.path.exists("localData/drafted_players.json"):
+        with open("localData/drafted_players.json", "r") as f:
             for line in f:
                 drafted_data = json.loads(line)
-                drafted_players.extend(drafted_data["players"])
+                drafted_players.append(drafted_data["full_name"])
 
     # Filter out drafted players
     players = [player for player in players if player['full_name'] not in drafted_players]
 
-    st.dataframe(df, selection_mode="single")
-
+    # Sort players by search_rank
+    players = sorted(players, key=lambda player: player.get('search_rank', float('inf')) if player.get('search_rank') is not None else float('inf'))
+    df = pd.DataFrame(players)
+    st.dataframe(df)
 
 # Function to save drafted players to a local file
 def save_drafted_players(drafted_players, team_name):
-    with open("drafted_players.json", "a") as f:
+    with open("localData/drafted_players.json", "a") as f:
         for player in drafted_players:
             drafted_data = {
                 "team_name": team_name,
