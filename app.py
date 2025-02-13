@@ -35,8 +35,7 @@ def load_team_names():
     
     return team_names_df
 
-# Function to display player data in a table
-def display_players(players):
+def filter_players(players):
     # Load drafted players from local file
     drafted_players = []
     if os.path.exists("localData/drafted_players.json"):
@@ -48,6 +47,11 @@ def display_players(players):
     # Filter out drafted players
     players = [player for player in players if player['full_name'] not in drafted_players]
 
+    return players
+
+# Function to display player data in a table
+def display_players(players):
+    players = filter_players(players)
     # Sort players by search_rank
     players = sorted(players, key=lambda player: player.get('search_rank', float('inf')) if player.get('search_rank') is not None else float('inf'))
     df = pd.DataFrame(players)
@@ -105,6 +109,7 @@ if page == "Home":
             st.success(f"{player['full_name']} drafted by {team_name} for ${draft_amount}")
 
     # Select a player from the dataframe
+    players = filter_players(players)
     players = sorted(players, key=lambda player: player.get('search_rank', float('inf')) if player.get('search_rank') is not None else float('inf'))
     selected_player_index = st.selectbox("Select a player to draft:", range(len(players)), format_func=lambda idx: players[idx]['full_name'])
     if selected_player_index is not None:
