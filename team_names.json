@@ -1,0 +1,53 @@
+[
+    {
+        "team_name": "Rappendola",
+        "team_owner": "Dan Rapp",
+        "team_members": ["Dan Rapp", "Mike Lamendola"]
+    },
+    {
+        "team_name": "Stackaholics",
+        "team_owner": "Tim Stack"
+    },
+    {
+        "team_name": "The Big Sacks",
+        "team_owner": "Andrew Kay"
+    },
+    {
+        "team_name": "Bottomfeeders",
+        "team_owner": "Mike Sadis"
+    },
+    {
+        "team_name": "MadCowboys",
+        "team_owner": "Dan Gaiman"
+    },
+    {
+        "team_name": "His Hog Is His Hog",
+        "team_owner": "Billy Archer"
+    },
+    {
+        "team_name": "CCH",
+        "team_owner": "Ross Weber"
+    },
+    {
+        "team_name": "Eggplant Factory",
+        "team_owner": "Keith Dennis",
+        "team_members": ["Keith Dennis", "Joe Balducci"]
+    },
+    {
+        "team_name": "With a man's balls..",
+        "team_owner": "Sean Ostrower"
+    },
+    {
+        "team_name": "Big Hairy Giants",
+        "team_owner": "Dan Royce"
+    },
+    {
+        "team_name": "G.R.O.S.S.",
+        "team_owner": "Rich Kourbage"
+    },
+    {
+        "team_name": "Auctioneers",
+        "team_owner": "Kyle Sadis",
+        "team_members": ["Kyle Sadis", "Ryan Kobel"]
+    }
+]

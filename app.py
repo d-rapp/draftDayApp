@@ -50,7 +50,7 @@ def fetch_and_process_player_stats(player_id, season):
 
 # Load team names from local file
 def load_team_names():
-    local_file = "localData/team_names.json"
+    local_file = "team_names.json"
     
     if os.path.exists(local_file):
         with open(local_file, "r") as f:
