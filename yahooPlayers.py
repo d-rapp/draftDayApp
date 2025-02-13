@@ -4,18 +4,18 @@ import pandas as pd
 import json
 import os
 
-# Function to fetch NFL player data from Sleeper API
-def fetch_nfl_players():
-    local_file = "localData/nfl_players.json"
+# Function to fetch NFL player data from Yahoo API
+def fetch_yahoo_players():
+    local_file = "localData/yahoo_players.json"
     
     if os.path.exists(local_file):
         with open(local_file, "r") as f:
             players = json.load(f)
     else:
-        url = "https://api.sleeper.app/v1/players/nfl"
+        url = "https://api.example.com/yahoo/nfl/players"  # Replace with actual Yahoo API endpoint
         response = requests.get(url)
         data = response.json()
-        players = [player for player in data.values() if player['active'] and player['position'] in ["WR", "RB", "QB", "TE"]]
+        players = [player for player in data if player['active'] and player['position'] in ["WR", "RB", "QB", "TE"]]
         with open(local_file, "w") as f:
             json.dump(players, f)
     
@@ -67,14 +67,10 @@ def save_drafted_players(drafted_players, team_name):
             json.dump(drafted_data, f)
             f.write("\n")
 
-# Streamlit app layout
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Draft Day App", "Yahoo Players"])
-
-if page == "Home":
-    st.title("NFL Fantasy Football Draft Tracker")
+def run():
+    st.title("NFL Fantasy Football Draft Tracker (Yahoo)")
     team_names = load_team_names()
-    players = fetch_nfl_players()
+    players = fetch_yahoo_players()
     # Filter players by position
     positions = list(set(player['position'] for player in players))
     selected_position = st.selectbox("Filter by position:", ["All"] + positions)
@@ -105,16 +101,6 @@ if page == "Home":
             st.success(f"{player['full_name']} drafted by {team_name} for ${draft_amount}")
 
     # Select a player from the dataframe
-    players = sorted(players, key=lambda player: player.get('search_rank', float('inf')) if player.get('search_rank') is not None else float('inf'))
     selected_player_index = st.selectbox("Select a player to draft:", range(len(players)), format_func=lambda idx: players[idx]['full_name'])
     if selected_player_index is not None:
         draft_player(players[selected_player_index])
-
-elif page == "Draft Day App":
-    import draftDayApp
-    draftDayApp.run()
-
-elif page == "Yahoo Players":
-    import yahooPlayers
-    yahooPlayers.run()
-
