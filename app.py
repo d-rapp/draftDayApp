@@ -6,18 +6,18 @@ import os
 
 # Function to fetch NFL player data from Sleeper API
 def fetch_nfl_players():
-    local_file = "localData/nfl_players.json"
+    # local_file = "localData/nfl_players.json"
     
-    if os.path.exists(local_file):
-        with open(local_file, "r") as f:
-            players = json.load(f)
-    else:
-        url = "https://api.sleeper.app/v1/players/nfl"
-        response = requests.get(url)
-        data = response.json()
-        players = [player for player in data.values() if player['active'] and player['position'] in ["WR", "RB", "QB", "TE"]]
-        with open(local_file, "w") as f:
-            json.dump(players, f)
+    # if os.path.exists(local_file):
+    #     with open(local_file, "r") as f:
+    #         players = json.load(f)
+    # else:
+    url = "https://api.sleeper.app/v1/players/nfl"
+    response = requests.get(url)
+    data = response.json()
+    players = [player for player in data.values() if player['active'] and player['position'] in ["WR", "RB", "QB", "TE"]]
+        # with open(local_file, "w") as f:
+        #     json.dump(players, f)
     
     return players
 
