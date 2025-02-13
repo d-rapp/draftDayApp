@@ -64,12 +64,26 @@ def save_drafted_players(drafted_players, team_name):
             drafted_data = {
                 "team_name": team_name,
                 "full_name": player['full_name'],
+                "position": player['position'],
                 "nominated_by": player['nominated_by'],
                 "nomination_amount": player['nomination_amount'],
                 "draft_amount": player['draft_amount']
             }
             json.dump(drafted_data, f)
             f.write("\n")
+
+# Function to calculate remaining budget for each team
+def calculate_remaining_budget(initial_budget=200):
+    team_names = load_team_names()
+    team_budgets = {team: initial_budget for team in team_names['team_name']}
+    
+    if os.path.exists("localData/drafted_players.json"):
+        with open("localData/drafted_players.json", "r") as f:
+            drafted_players = [json.loads(line) for line in f]
+            for player in drafted_players:
+                team_budgets[player['team_name']] -= player['draft_amount']
+    
+    return team_budgets
 
 # Streamlit app layout
 st.sidebar.title("Navigation")
@@ -89,6 +103,13 @@ if page == "Home":
         players = [player for player in players if player['position'] == selected_position]
 
     display_players(players)
+    
+    # Display remaining budget for each team
+    st.subheader("Remaining Budget for Each Team")
+    team_budgets = calculate_remaining_budget()
+    budget_df = pd.DataFrame(list(team_budgets.items()), columns=["Team Name", "Remaining Budget"]).transpose()
+    st.dataframe(budget_df,resizable=True)
+
     # Function to handle drafting a player
     def draft_player(player):
         st.write(f"Drafting player: {player['full_name']}")
@@ -100,6 +121,7 @@ if page == "Home":
         if st.button("Confirm Draft"):
             drafted_player = {
                 "full_name": player['full_name'],
+                "position": player['position'],
                 "nominated_by": nominated_by,
                 "nomination_amount": nomination_amount,
                 "draft_amount": draft_amount,
