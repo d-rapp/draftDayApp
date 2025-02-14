@@ -1,13 +1,13 @@
 import streamlit as st
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-# from google.oauth2.service_account import Credentials
+# from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 import pandas as pd
 
 #needed for deployment
 credentials_info = st.secrets["gcp_service_account"]
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.Credentials.from_service_account_info(credentials_info, scope)
+creds = Credentials.from_service_account_info(credentials_info, scope)
 
 # Define the scope and credentials
 # uncomment for local dev. 
