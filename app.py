@@ -3,21 +3,25 @@ import requests
 import pandas as pd
 import json
 import os
+import google_sheets as gs
+
+# FILE_ID = "1U4-2l8u9b1Sr1aX3WFbAL-HQ_UsiiEoh"
+# DRIVE_URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 # Function to fetch NFL player data from Sleeper API
 def fetch_nfl_players():
-    # local_file = "localData/nfl_players.json"
+    local_file = "localData/nfl_players.json"
     
-    # if os.path.exists(local_file):
-    #     with open(local_file, "r") as f:
-    #         players = json.load(f)
-    # else:
-    url = "https://api.sleeper.app/v1/players/nfl"
-    response = requests.get(url)
-    data = response.json()
-    players = [player for player in data.values() if player['active'] and player['position'] in ["WR", "RB", "QB", "TE"]]
-        # with open(local_file, "w") as f:
-        #     json.dump(players, f)
+    if os.path.exists(local_file):
+        with open(local_file, "r") as f:
+            players = json.load(f)
+    else:
+        url = "https://api.sleeper.app/v1/players/nfl"
+        response = requests.get(url)
+        data = response.json()
+        players = [player for player in data.values() if player['active'] and player['position'] in ["WR", "RB", "QB", "TE"]]
+        with open(local_file, "w") as f:
+            json.dump(players, f)
     
     return players
 
@@ -64,12 +68,12 @@ def load_team_names():
 
 def filter_players(players):
     # Load drafted players from local file
-    drafted_players = []
-    if os.path.exists("localData/drafted_players.json"):
-        with open("localData/drafted_players.json", "r") as f:
-            for line in f:
-                drafted_data = json.loads(line)
-                drafted_players.append(drafted_data["full_name"])
+    drafted_players = gs.fetch_drafted_players()
+    # if os.path.exists("localData/drafted_players.json"):
+    #     with open("localData/drafted_players.json", "r") as f:
+    #         for line in f:
+    #             drafted_data = json.loads(line)
+    #             drafted_players.append(drafted_data["full_name"])
 
     # Filter out drafted players
     players = [player for player in players if player['full_name'] not in drafted_players]
@@ -82,24 +86,23 @@ def display_players(players):
     # Sort players by search_rank
     players = sorted(players, key=lambda player: player.get('search_rank', float('inf')) if player.get('search_rank') is not None else float('inf'))
     df = pd.DataFrame(players)
-    st.dataframe(df.head(6), column_order=["full_name", "position", "team"
-                                   , "yahoo_id", "rotoworld_id", "espn_id", "swish_id", "player_id", "fantasy_data_id", "sportsradar_id"
-                                   , "search_rank"],hide_index=True)
+    st.dataframe(df, column_order=["full_name", "position", "team", "search_rank"])
 
 # Function to save drafted players to a local file
 def save_drafted_players(drafted_players, team_name):
-    with open("localData/drafted_players.json", "a") as f:
-        for player in drafted_players:
-            drafted_data = {
-                "team_name": team_name,
-                "full_name": player['full_name'],
-                "position": player['position'],
-                "nominated_by": player['nominated_by'],
-                "nomination_amount": player['nomination_amount'],
-                "draft_amount": player['draft_amount']
-            }
-            json.dump(drafted_data, f)
-            f.write("\n")
+    # with open("localData/drafted_players.json", "a") as f:
+    for player in drafted_players:
+        drafted_data = {
+            "team_name": team_name,
+            "full_name": player['full_name'],
+            "position": player['position'],
+            "nominated_by": player['nominated_by'],
+            "nomination_amount": player['nomination_amount'],
+            "draft_amount": player['draft_amount']
+        }
+    gs.save_drafted_players([drafted_data])
+        #   json.dump(drafted_data, f)
+        #     f.write("\n")
 
 # Function to calculate remaining budget for each team
 def calculate_remaining_budget(initial_budget=200):
@@ -154,6 +157,7 @@ def aggregate_draft_data():
         st.error("The file 'drafted_players.json' does not exist.")
         return pd.DataFrame(columns=["Team Name", "Total Spend", "Player Count"])
 
+
 # Streamlit app layout
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Home", "Draft Day App", "Yahoo Players"])
@@ -206,7 +210,6 @@ if page == "Home":
             }
             save_drafted_players([drafted_player], team_name)
             st.success(f"{player['full_name']} drafted by {team_name} for ${draft_amount}")
-            #st.experimental_rerun()  # Refresh the data
 
     # Select a player from the dataframe
     players = filter_players(players)
