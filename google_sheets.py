@@ -6,8 +6,8 @@ import pandas as pd
 
 #needed for deployment
 credentials_info = st.secrets["gcp_service_account"]
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = Credentials.from_service_account_info(credentials_info, scope)
+# scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = Credentials.from_service_account_info(credentials_info, scopes=["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"])
 
 # Define the scope and credentials
 # uncomment for local dev. 
