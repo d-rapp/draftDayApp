@@ -6,10 +6,10 @@ import pandas as pd
 
 #needed for deployment
 credentials_info = st.secrets["gcp_service_account"]
-creds = Credentials.from_service_account_info(credentials_info)
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = Credentials.from_service_account_info(credentials_info, scope)
 
 # Define the scope and credentials
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 # uncomment for local dev. 
 # creds = ServiceAccountCredentials.from_json_keyfile_name(f"creds/academic-oasis-450821-s1-cc04b16567e3.json", scope)
 client = gspread.authorize(creds)
