@@ -8,11 +8,12 @@ creds = ServiceAccountCredentials.from_json_keyfile_name(f"creds/academic-oasis-
 client = gspread.authorize(creds)
 
 # Open the Google Sheet
-sheet = client.open("drafted_players").sheet1
+drafted_player_doc = client.open("drafted_players").sheet1
+team_names_doc = client.open("team_names").sheet1
 
 # Function to fetch drafted players data from Google Sheet
 def fetch_drafted_players():
-    data = sheet.get_all_records()
+    data = drafted_player_doc.get_all_records()
     df = pd.DataFrame(data)
     return df
 
@@ -21,13 +22,18 @@ def save_drafted_players(drafted_players):
     existing_data = fetch_drafted_players()
     new_data = pd.DataFrame(drafted_players)
     updated_data = pd.concat([existing_data, new_data], ignore_index=True)
-    sheet.update([updated_data.columns.values.tolist()] + updated_data.values.tolist())
+    drafted_player_doc.update([updated_data.columns.values.tolist()] + updated_data.values.tolist())
 
 # Function to remove an existing player based on full_name
 def remove_player(full_name):
     existing_data = fetch_drafted_players()
     updated_data = existing_data[existing_data.full_name != full_name]
-    sheet.update([updated_data.columns.values.tolist()] + updated_data.values.tolist())
+    drafted_player_doc.update([updated_data.columns.values.tolist()] + updated_data.values.tolist())
+
+def get_team_names():
+    data = team_names_doc.get_all_records()
+    df = pd.DataFrame(data)
+    return df
 
 # # Example usage
 # if __name__ == "__main__":

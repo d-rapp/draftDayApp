@@ -1,8 +1,7 @@
 [
     {
         "team_name": "Rappendola",
-        "team_owner": "Dan Rapp",
-        "team_members": ["Dan Rapp", "Mike Lamendola"]
+        "team_owner": "Dan Rapp, Mike Lamendola"
     },
     {
         "team_name": "Stackaholics",
@@ -30,8 +29,7 @@
     },
     {
         "team_name": "Eggplant Factory",
-        "team_owner": "Keith Dennis",
-        "team_members": ["Keith Dennis", "Joe Balducci"]
+        "team_owner": "Keith Dennis, Joe Balducci"
     },
     {
         "team_name": "With a man's balls..",
@@ -47,7 +45,6 @@
     },
     {
         "team_name": "Auctioneers",
-        "team_owner": "Kyle Sadis",
-        "team_members": ["Kyle Sadis", "Ryan Kobel"]
+        "team_owner": "Kyle Sadis?"
     }
 ]
