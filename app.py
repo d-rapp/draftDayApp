@@ -193,13 +193,9 @@ if page == "Home":
     st.dataframe(aggregate_draft_data(),hide_index=True)
 
     # Select a player from the dataframe
-    print("players")
     players = filter_players(players)
-    print("players1")
     players = players.sort_values(by='search_rank', na_position='last')
-    print("players2")
     selected_player_index = st.selectbox("Select a player to draft:", players.index, format_func=lambda idx: players.loc[idx, 'full_name'])
-    print("players3")
     if selected_player_index is not None:
         draft_player(players.loc[[selected_player_index]])
 
