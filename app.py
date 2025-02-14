@@ -64,6 +64,11 @@ def filter_players(players):
     drafted_players = gs.fetch_drafted_players()
     # Convert players to DataFrame
     players_df = pd.DataFrame(players)
+    
+    # Check if drafted_players is empty
+    if drafted_players.empty:
+        return players_df
+    
     # Filter out drafted players
     filtered_players_df = players_df[~players_df['full_name'].isin(drafted_players['full_name'])]
 

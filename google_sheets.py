@@ -26,9 +26,9 @@ def save_drafted_players(drafted_players):
 
 # Function to remove an existing player based on full_name
 def remove_player(full_name):
-    existing_data = fetch_drafted_players()
-    updated_data = existing_data[existing_data.full_name != full_name]
-    drafted_player_doc.update([updated_data.columns.values.tolist()] + updated_data.values.tolist())
+    cell = drafted_player_doc.find(full_name)
+    if cell:
+        drafted_player_doc.delete_rows(cell.row)
 
 def get_team_names():
     data = team_names_doc.get_all_records()
