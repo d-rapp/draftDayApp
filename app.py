@@ -168,11 +168,11 @@ def draft_player(player_df):
         }
         save_drafted_players([drafted_player], team_name)
         st.success(f"{player['full_name']} drafted by {team_name} for ${draft_amount}")
-
+        
 
 # Streamlit app layout
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Draft Day App", "Yahoo Players"])
+page = st.sidebar.radio("Go to", ["Home", "Draft Day App"])
 
 if page == "Home":
     st.title("NFL Fantasy Football Draft Tracker")
@@ -208,7 +208,7 @@ elif page == "Draft Day App":
     import draftDayApp
     draftDayApp.run()
 
-elif page == "Yahoo Players":
-    import yahooPlayers
-    yahooPlayers.run()
+# elif page == "Yahoo Players":
+#     import yahooPlayers
+#     yahooPlayers.run()
 
