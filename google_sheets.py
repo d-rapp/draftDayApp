@@ -1,10 +1,17 @@
+import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2 import service_account
 import pandas as pd
+
+#needed for deployment
+credentials_info = st.secrets["gcp_service_account"]
+creds = service_account.Credentials.from_service_account_info(credentials_info)
 
 # Define the scope and credentials
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name(f"creds/academic-oasis-450821-s1-cc04b16567e3.json", scope)
+# uncomment for local dev. 
+# creds = ServiceAccountCredentials.from_json_keyfile_name(f"creds/academic-oasis-450821-s1-cc04b16567e3.json", scope)
 client = gspread.authorize(creds)
 
 # Open the Google Sheet
